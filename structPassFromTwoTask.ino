@@ -12,18 +12,29 @@ typedef struct dataToPrint_h
 
 void adc1(void *parm)
 {
+  (int)parm;
   pinMode(A0,INPUT);
+  pinMode(A1,INPUT);
   dataToPrint_t data;
   while(1)
   {
-    
-    data.pin=0;
-    data.val=analogRead(A0);
-    xQueueSend(xQueueToPrint, &data, portMAX_DELAY);
-    vTaskDelay(pdMS_TO_TICKS(500));
-    
+    if(parm==0)
+    {
+      data.pin=0;
+      data.val=analogRead(A0);
+      xQueueSend(xQueueToPrint, &data, portMAX_DELAY);
+      vTaskDelay(pdMS_TO_TICKS(500));
+    }
+    else
+    {
+      data.pin=1;
+      data.val=analogRead(A1);
+      xQueueSend(xQueueToPrint, &data, portMAX_DELAY);
+      vTaskDelay(pdMS_TO_TICKS(100));
+    }
   }
 }
+/*
 void adc2(void *parm)
 {
   pinMode(A1,INPUT);
@@ -37,7 +48,7 @@ void adc2(void *parm)
     vTaskDelay(pdMS_TO_TICKS(500));
     
   }
-}
+}*/
 void led(void *parm)
 {
   pinMode(LED_BUILTIN,OUTPUT);
@@ -69,8 +80,8 @@ void print(void *parm)
 }
 void setup() 
 {
-  xTaskCreate(adc1,"adc1",125,NULL,1,adc1_h);
-  xTaskCreate(adc2,"adc2",125,NULL,1,adc2_h);
+  xTaskCreate(adc1,"adc1",125,0,1,adc1_h);
+  xTaskCreate(adc1,"adc2",125,1,1,adc2_h);
   xTaskCreate(led,"led",200,NULL,1,led_h);
   xTaskCreate(print,"print",125,NULL,1,print_h);
   xQueueToPrint=xQueueCreate(5, sizeof(dataToPrint_t));
